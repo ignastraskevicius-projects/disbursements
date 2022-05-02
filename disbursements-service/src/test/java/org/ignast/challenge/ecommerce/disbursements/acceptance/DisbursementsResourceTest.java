@@ -49,13 +49,13 @@ public class DisbursementsResourceTest {
         return """
                 {
                     "timeFrame":{
-                        "start":"2012-03-22T00:00:00-00:00",
-                        "end":"2012-03-29T00:00:00-00:00"
+                        "start":"2012-03-22T00:00:00+01:00",
+                        "end":"2012-03-29T00:00:00+01:00"
                     },
                     "merchants":[{
-                        "id":"amazon@amazon.com",
+                        "merchantId":"amazon@amazon.com",
                         "monetaryValue":{
-                            "amount":"5.27854324",
+                            "amount":5.27854324,
                             "currency":"EUR"
                         }
                     }]
@@ -70,6 +70,9 @@ public class DisbursementsResourceTest {
     }
 
     private final String uri() {
-        return String.format("http://localhost:%d/disbursements", port);
+        return String.format(
+            "http://localhost:%d/disbursements?endingAt=2012-03-29T00:00:00-00:00&timeFrame=1week",
+            port
+        );
     }
 }
