@@ -20,12 +20,16 @@
         <maven.compiler.target>17</maven.compiler.target>
 
         <springboot.version>2.6.4</springboot.version>
+        <springframework.version>5.3.16</springframework.version>
         <assertj.version>3.21.0</assertj.version>
         <junit.version>5.8.2</junit.version>
         <mockito.version>4.3.1</mockito.version>
         <lombok.version>1.18.22</lombok.version>
         <hamcrest.version>2.2</hamcrest.version>
+        <equalsverifier.version>3.9</equalsverifier.version>
     </properties>
+
+
 
     <dependencyManagement>
         <dependencies>
@@ -51,14 +55,14 @@
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-hateoas</artifactId>
-                <version>${springboot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-test</artifactId>
                 <scope>test</scope>
                 <version>${springboot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${springframework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.assertj</groupId>
@@ -73,14 +77,14 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-params</artifactId>
-                <version>${junit.version}</version>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
-                <artifactId>mockito-core</artifactId>
+                <artifactId>mockito-inline</artifactId>
                 <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>
@@ -99,6 +103,12 @@
                 <groupId>org.skyscreamer</groupId>
                 <artifactId>jsonassert</artifactId>
                 <version>1.5.0</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>nl.jqno.equalsverifier</groupId>
+                <artifactId>equalsverifier</artifactId>
+                <version>${equalsverifier.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
