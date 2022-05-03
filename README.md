@@ -5,6 +5,7 @@ A little HATEOAS HAL REST API for disbursements service in the e-commerce contex
 
 ### Requirements
 * Java 17
+* Docker Engine 20.10.12
 * port 8080 to be free
 
 ### 1. Build
