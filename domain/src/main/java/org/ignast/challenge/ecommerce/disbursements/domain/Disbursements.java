@@ -1,11 +1,9 @@
 package org.ignast.challenge.ecommerce.disbursements.domain;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.javamoney.moneta.Money;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +16,6 @@ public class Disbursements {
 
     public List<Disbursement> retrieveDisbursementsOverWeekEndingBefore(final LocalDate date) {
         val lastDayOfWeek = date.minusDays(1);
-        val firstDayOfWeek = date.minusWeeks(1);
-        return repository.findByOrderCompletionDateBetween(firstDayOfWeek, lastDayOfWeek);
+        return repository.findByLastDayOfWeek(lastDayOfWeek);
     }
 }
