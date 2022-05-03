@@ -7,9 +7,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
-import lombok.NonNull;
 import lombok.val;
 import org.ignast.challenge.ecommerce.disbursements.domain.Disbursement;
 import org.ignast.challenge.ecommerce.disbursements.domain.Disbursements;
@@ -36,7 +34,7 @@ public class DisbursementsController {
         ) final LocalDate timeFrameEndingBefore,
         @RequestParam(name = "timeFrame") @Pattern(regexp = "1week") final String timeFrame
     ) {
-        List<Disbursement> disbursementsOverTheWeek = disbursements.retrieveDisbursementsOverWeekEndingAt(
+        List<Disbursement> disbursementsOverTheWeek = disbursements.retrieveDisbursementsOverWeekEndingBefore(
             timeFrameEndingBefore
         );
         return toDto(timeFrameEndingBefore, disbursementsOverTheWeek);

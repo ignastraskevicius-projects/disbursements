@@ -2,15 +2,23 @@ package org.ignast.challenge.ecommerce.disbursements.domain;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.javamoney.moneta.Money;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class Disbursements {
 
-    public List<Disbursement> retrieveDisbursementsOverWeekEndingAt(final LocalDate time) {
-        return List.of(new Disbursement("amazon@amazon.com", Money.of(new BigDecimal("5.27854324"), "EUR")));
+    @Autowired
+    private final DisbursementsRepository repository;
+
+    public List<Disbursement> retrieveDisbursementsOverWeekEndingBefore(final LocalDate date) {
+        val lastDayOfWeek = date.minusDays(1);
+        val firstDayOfWeek = date.minusWeeks(1);
+        return repository.findByOrderCompletionDateBetween(firstDayOfWeek, lastDayOfWeek);
     }
 }

@@ -35,7 +35,7 @@ class DisbursementsControllerTest {
 
     @Test
     public void shouldSerializeDisbursements() throws Exception {
-        when(disbursements.retrieveDisbursementsOverWeekEndingAt(FIRST_MONDAY_OF_2022))
+        when(disbursements.retrieveDisbursementsOverWeekEndingBefore(FIRST_MONDAY_OF_2022))
             .thenReturn(
                 List.of(new Disbursement("amazon@amazon.com", Money.of(new BigDecimal("5.27854324"), "EUR")))
             );
