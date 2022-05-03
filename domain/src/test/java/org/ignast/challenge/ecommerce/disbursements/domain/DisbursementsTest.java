@@ -3,7 +3,6 @@ package org.ignast.challenge.ecommerce.disbursements.domain;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,10 +19,8 @@ class DisbursementsTest {
     public void shouldQueryRepository() {
         val dateAfterLastDay = LocalDate.of(2022, 1, 8);
         val dateLastOfWeek = LocalDate.of(2022, 1, 7);
-        val dateFirstOfWeek = LocalDate.of(2022, 1, 1);
         val expectedDisbursements = List.of(mock(Disbursement.class));
-        when(repository.findByOrderCompletionDateBetween(dateFirstOfWeek, dateLastOfWeek))
-            .thenReturn(expectedDisbursements);
+        when(repository.findByLastDayOfWeek(dateLastOfWeek)).thenReturn(expectedDisbursements);
 
         List<Disbursement> disbursements =
             this.disbursements.retrieveDisbursementsOverWeekEndingBefore(dateAfterLastDay);

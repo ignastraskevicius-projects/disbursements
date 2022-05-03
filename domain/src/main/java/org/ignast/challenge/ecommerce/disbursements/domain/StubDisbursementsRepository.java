@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 public class StubDisbursementsRepository implements DisbursementsRepository {
 
     @Override
-    public List<Disbursement> findByOrderCompletionDateBetween(LocalDate startDate, LocalDate endDate) {
+    public List<Disbursement> findByLastDayOfWeek(LocalDate date) {
         return List.of(new Disbursement("amazon@amazon.com", Money.of(new BigDecimal("5.27854324"), "EUR")));
     }
 }
