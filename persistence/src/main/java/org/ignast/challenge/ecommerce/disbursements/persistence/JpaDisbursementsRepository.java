@@ -1,4 +1,4 @@
-package org.ignast.challenge.ecommerce.disbursements;
+package org.ignast.challenge.ecommerce.disbursements.persistence;
 
 import java.time.LocalDate;
 import java.util.List;
