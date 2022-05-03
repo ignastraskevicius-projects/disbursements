@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import org.ignast.challenge.ecommerce.disbursements.domain.Disbursement;
 import org.ignast.challenge.ecommerce.disbursements.domain.Disbursements;
@@ -23,6 +24,9 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest
 class DisbursementsControllerTest {
 
+    private static final LocalDate FIRST_MONDAY_OF_2022 = LocalDate.of(2022, 1, 3);
+    private static final String FIRST_MONDAY_OF_2022_TEXT = "2022-01-03";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -30,14 +34,14 @@ class DisbursementsControllerTest {
     private Disbursements disbursements;
 
     @Test
-    public void test() throws Exception {
-        when(disbursements.retrieveDisbursementsOverWeekEndingAt(any()))
+    public void shouldSerializeDisbursements() throws Exception {
+        when(disbursements.retrieveDisbursementsOverWeekEndingAt(FIRST_MONDAY_OF_2022))
             .thenReturn(
                 List.of(new Disbursement("amazon@amazon.com", Money.of(new BigDecimal("5.27854324"), "EUR")))
             );
         mockMvc
             .perform(
-                get("/disbursements?endingAt=2012-03-29T00:00:00-00:00&timeFrame=1week")
+                get("/disbursements?timeFrameEndingBefore=" + FIRST_MONDAY_OF_2022_TEXT + "&timeFrame=1week")
                     .accept(APPLICATION_JSON)
             )
             .andExpect(status().isOk())
@@ -45,12 +49,32 @@ class DisbursementsControllerTest {
             .andExpect(content().json(amazon()));
     }
 
+    @Test
+    public void shouldNotAcceptNonWeekTimeframes() throws Exception {
+        mockMvc
+            .perform(
+                get("/disbursements?timeFrameEndingBefore=" + FIRST_MONDAY_OF_2022_TEXT + "&timeFrame=1month")
+                    .accept(APPLICATION_JSON)
+            )
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldAcceptOnly1WeekTimeframes() throws Exception {
+        mockMvc
+            .perform(
+                get("/disbursements?timeFrameEndingBefore=" + FIRST_MONDAY_OF_2022_TEXT + "&timeFrame=2week")
+                    .accept(APPLICATION_JSON)
+            )
+            .andExpect(status().isBadRequest());
+    }
+
     private final String amazon() {
         return """
                 {
                     "timeFrame":{
-                        "start":"2012-03-22T00:00:00+01:00",
-                        "end":"2012-03-29T00:00:00+01:00"
+                        "start":"2021-12-27T00:00:00+01:00",
+                        "end":"2022-01-03T00:00:00+01:00"
                     },
                     "merchants":[{
                         "merchantId":"amazon@amazon.com",
@@ -59,7 +83,6 @@ class DisbursementsControllerTest {
                             "currency":"EUR"
                         }
                     }]
-                    
                 }""";
     }
 }

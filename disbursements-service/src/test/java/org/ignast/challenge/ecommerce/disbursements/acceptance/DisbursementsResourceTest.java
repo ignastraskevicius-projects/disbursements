@@ -49,8 +49,8 @@ public class DisbursementsResourceTest {
         return """
                 {
                     "timeFrame":{
-                        "start":"2012-03-22T00:00:00+01:00",
-                        "end":"2012-03-29T00:00:00+01:00"
+                        "start":"2021-12-27T00:00:00+01:00",
+                        "end":"2022-01-03T00:00:00+01:00"
                     },
                     "merchants":[{
                         "merchantId":"amazon@amazon.com",
@@ -71,7 +71,7 @@ public class DisbursementsResourceTest {
 
     private final String uri() {
         return String.format(
-            "http://localhost:%d/disbursements?endingAt=2012-03-29T00:00:00-00:00&timeFrame=1week",
+            "http://localhost:%d/disbursements?timeFrameEndingBefore=2022-01-03&timeFrame=1week",
             port
         );
     }
