@@ -19,10 +19,10 @@ class DisbursementsTest {
     public void shouldQueryRepository() {
         val dateAfterLastDay = LocalDate.of(2022, 1, 8);
         val dateLastOfWeek = LocalDate.of(2022, 1, 7);
-        val expectedDisbursements = List.of(mock(Disbursement.class));
-        when(repository.findByLastDayOfWeek(dateLastOfWeek)).thenReturn(expectedDisbursements);
+        val expectedDisbursements = List.of(mock(DisbursementOverWeekPeriod.class));
+        when(repository.findByLastDayOfWeekPeriod(dateLastOfWeek)).thenReturn(expectedDisbursements);
 
-        List<Disbursement> disbursements =
+        List<DisbursementOverWeekPeriod> disbursements =
             this.disbursements.retrieveDisbursementsOverWeekEndingBefore(dateAfterLastDay);
 
         assertThat(disbursements).isSameAs(expectedDisbursements);
