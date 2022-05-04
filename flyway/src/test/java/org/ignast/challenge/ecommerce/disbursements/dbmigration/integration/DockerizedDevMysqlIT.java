@@ -1,9 +1,10 @@
-package org.ignast.challenge.ecommerce.disbursements.persistence.integration;
+package org.ignast.challenge.ecommerce.disbursements.dbmigration.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.sql.DataSource;
 import lombok.val;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
@@ -38,7 +39,7 @@ public final class DockerizedDevMysqlIT {
             String.class
         );
 
-        assertThat(name).isEqualTo("amazon@amazon.com");
+        Assertions.assertThat(name).isEqualTo("amazon@amazon.com");
     }
 
     private DataSource createDataSource() {

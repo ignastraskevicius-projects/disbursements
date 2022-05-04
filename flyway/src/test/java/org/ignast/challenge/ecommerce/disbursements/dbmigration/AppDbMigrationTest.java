@@ -1,16 +1,16 @@
-package org.ignast.challenge.ecommerce.disbursements.persistence.dbmigration;
+package org.ignast.challenge.ecommerce.disbursements.dbmigration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.ignast.challenge.ecommerce.disbursements.persistence.dbmigration.AppDbContainer.getDataSourceTo;
+import static org.ignast.challenge.ecommerce.disbursements.dbmigration.AppDbContainer.getDataSourceTo;
 
 import java.math.BigDecimal;
 import java.sql.SQLIntegrityConstraintViolationException;
 import lombok.val;
+import org.assertj.core.api.Assertions;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -113,8 +113,8 @@ public class AppDbMigrationTest {
             "SELECT id FROM disbursement_over_week_period WHERE merchant_id = 'microsoft@microsoft.com'",
             Integer.class
         );
-        assertThat(amazonDisbursementId).isGreaterThan(0);
-        assertThat(microsoftDisbursementId).isGreaterThan(0);
+        Assertions.assertThat(amazonDisbursementId).isGreaterThan(0);
+        Assertions.assertThat(microsoftDisbursementId).isGreaterThan(0);
         assertThat(amazonDisbursementId + 1).isEqualTo(microsoftDisbursementId);
     }
 }
