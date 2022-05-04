@@ -13,11 +13,14 @@ import org.ignast.challenge.ecommerce.disbursements.domain.DisbursementOverWeekP
 import org.ignast.challenge.ecommerce.disbursements.domain.Disbursements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.async.DeferredResult;
 
 @RestController
 @RequestMapping("/disbursements")
@@ -26,6 +29,13 @@ public class DisbursementsController {
 
     @Autowired
     private Disbursements disbursements;
+
+    @PostMapping
+    public DeferredResult<ResponseEntity<Void>> calculateDisbursements() {
+        val result = new DeferredResult<ResponseEntity<Void>>();
+        result.setResult(ResponseEntity.accepted().build());
+        return result;
+    }
 
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public DisbursementsDto retrieveDisbursements(

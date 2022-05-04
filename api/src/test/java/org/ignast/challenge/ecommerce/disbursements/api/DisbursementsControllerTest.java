@@ -4,7 +4,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -12,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import lombok.val;
 import org.ignast.challenge.ecommerce.disbursements.domain.DisbursementOverWeekPeriod;
 import org.ignast.challenge.ecommerce.disbursements.domain.Disbursements;
 import org.ignast.challenge.ecommerce.disbursements.domain.NoDisbursementsFound;
@@ -21,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 @WebMvcTest
 class DisbursementsControllerTest {
@@ -91,6 +95,19 @@ class DisbursementsControllerTest {
                     .accept(APPLICATION_JSON)
             )
             .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldAcceptDisbursementCreation() throws Exception {
+        val result = mockMvc
+            .perform(
+                post("/disbursements")
+                    .contentType(APPLICATION_JSON)
+                    .content("{\"timeFrameEndingBefore\":\"2022-01-08\"}")
+            )
+            .andReturn();
+
+        mockMvc.perform(asyncDispatch(result)).andExpect(status().isAccepted());
     }
 
     private final String amazon() {
