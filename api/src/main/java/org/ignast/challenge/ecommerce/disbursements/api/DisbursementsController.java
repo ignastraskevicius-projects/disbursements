@@ -5,8 +5,12 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 import lombok.val;
 import org.ignast.challenge.ecommerce.disbursements.domain.DisbursementOverWeekPeriod;
@@ -17,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,13 +32,31 @@ import org.springframework.web.context.request.async.DeferredResult;
 @Validated
 public class DisbursementsController {
 
+    private final ExecutorService singleThreadExecution = Executors.newSingleThreadExecutor();
+
     @Autowired
     private Disbursements disbursements;
 
-    @PostMapping
-    public DeferredResult<ResponseEntity<Void>> calculateDisbursements() {
+    @PostMapping(consumes = APPLICATION_JSON_VALUE)
+    public DeferredResult<ResponseEntity<Void>> calculateDisbursements(
+        @RequestBody @Valid DisbursementsTimeFrame calculation
+    ) {
         val result = new DeferredResult<ResponseEntity<Void>>();
-        result.setResult(ResponseEntity.accepted().build());
+        singleThreadExecution.submit(() -> {
+            if (
+                calculation
+                    .timeFrame()
+                    .endingBefore()
+                    .isAfter(ZonedDateTime.now(ZoneId.of("GMT+1")).toLocalDate())
+            ) {
+                result.setResult(ResponseEntity.badRequest().build());
+            } else {
+                disbursements.calculateDisbursementsForWeekEndingBefore(
+                    calculation.timeFrame().endingBefore()
+                );
+                result.setResult(ResponseEntity.accepted().build());
+            }
+        });
         return result;
     }
 

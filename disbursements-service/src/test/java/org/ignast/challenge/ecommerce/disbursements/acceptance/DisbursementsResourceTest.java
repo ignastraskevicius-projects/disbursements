@@ -94,9 +94,16 @@ public class DisbursementsResourceTest extends AcceptanceTestEnvironment {
     }
 
     private final HttpEntity<String> forWeekEndingBefore(String date) {
-        val week = String.format("{\"timeFrameEndingBefore\":\"%s\"}", date);
+        val week = String.format(
+            """
+                            {"timeFrame":{
+                                "length":"1week",
+                                "endingBefore":"%s"
+                            }}""",
+            date
+        );
         val headers = new HttpHeaders();
-        headers.add("Accept", APPLICATION_JSON_VALUE);
+        headers.add("Content-Type", APPLICATION_JSON_VALUE);
         return new HttpEntity<>(week, headers);
     }
 
