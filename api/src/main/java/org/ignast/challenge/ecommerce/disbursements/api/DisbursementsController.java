@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.constraints.Pattern;
 import lombok.val;
-import org.ignast.challenge.ecommerce.disbursements.domain.Disbursement;
+import org.ignast.challenge.ecommerce.disbursements.domain.DisbursementOverWeekPeriod;
 import org.ignast.challenge.ecommerce.disbursements.domain.Disbursements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -34,7 +34,7 @@ public class DisbursementsController {
         ) final LocalDate timeFrameEndingBefore,
         @RequestParam(name = "timeFrame") @Pattern(regexp = "1week") final String timeFrame
     ) {
-        List<Disbursement> disbursementsOverTheWeek = disbursements.retrieveDisbursementsOverWeekEndingBefore(
+        List<DisbursementOverWeekPeriod> disbursementsOverTheWeek = disbursements.retrieveDisbursementsOverWeekEndingBefore(
             timeFrameEndingBefore
         );
         return toDto(timeFrameEndingBefore, disbursementsOverTheWeek);
@@ -42,7 +42,7 @@ public class DisbursementsController {
 
     private DisbursementsDto toDto(
         LocalDate timeFrameEndingBefore,
-        List<Disbursement> disbursementsOverTheWeek
+        List<DisbursementOverWeekPeriod> disbursementsOverTheWeek
     ) {
         val endTime = timeFrameEndingBefore.atStartOfDay(ZoneId.of("GMT+1"));
         val startTime = endTime.minusDays(7);

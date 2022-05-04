@@ -12,7 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import org.ignast.challenge.ecommerce.disbursements.domain.Disbursement;
+import org.ignast.challenge.ecommerce.disbursements.domain.DisbursementOverWeekPeriod;
 import org.ignast.challenge.ecommerce.disbursements.domain.Disbursements;
 import org.javamoney.moneta.Money;
 import org.junit.jupiter.api.Test;
@@ -37,7 +37,13 @@ class DisbursementsControllerTest {
     public void shouldSerializeDisbursements() throws Exception {
         when(disbursements.retrieveDisbursementsOverWeekEndingBefore(FIRST_MONDAY_OF_2022))
             .thenReturn(
-                List.of(new Disbursement("amazon@amazon.com", Money.of(new BigDecimal("5.27854324"), "EUR")))
+                List.of(
+                    new DisbursementOverWeekPeriod(
+                        "amazon@amazon.com",
+                        anyDate(),
+                        Money.of(new BigDecimal("5.27854324"), "EUR")
+                    )
+                )
             );
         mockMvc
             .perform(
@@ -47,6 +53,10 @@ class DisbursementsControllerTest {
             .andExpect(status().isOk())
             .andExpect(header().string("Content-Type", APPLICATION_JSON_VALUE))
             .andExpect(content().json(amazon()));
+    }
+
+    private LocalDate anyDate() {
+        return LocalDate.of(2022, 1, 1);
     }
 
     @Test
