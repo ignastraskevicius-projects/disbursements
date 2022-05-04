@@ -20,6 +20,8 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
 
+        <mysql.dev.dockerimage>${project.groupId}/mysql-dev:${project.version}</mysql.dev.dockerimage>
+
         <springboot.version>2.6.4</springboot.version>
         <springframework.version>5.3.16</springframework.version>
         <springdata.version>2.6.2</springdata.version>
