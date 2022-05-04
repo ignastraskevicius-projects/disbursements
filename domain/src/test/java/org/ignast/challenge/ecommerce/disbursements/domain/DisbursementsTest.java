@@ -1,6 +1,8 @@
 package org.ignast.challenge.ecommerce.disbursements.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -26,5 +28,17 @@ class DisbursementsTest {
             this.disbursements.retrieveDisbursementsOverWeekEndingBefore(dateAfterLastDay);
 
         assertThat(disbursements).isSameAs(expectedDisbursements);
+    }
+
+    @Test
+    public void noDisbursementsForThePeriodShouldMeanThatTheyWereNotCalculatedYet() {
+        when(repository.findByLastDayOfWeekPeriod(any())).thenReturn(List.of());
+
+        assertThatExceptionOfType(NoDisbursementsFound.class)
+            .isThrownBy(() -> this.disbursements.retrieveDisbursementsOverWeekEndingBefore(anyDate()));
+    }
+
+    private LocalDate anyDate() {
+        return LocalDate.of(2022, 1, 8);
     }
 }

@@ -16,6 +16,13 @@ public class Disbursements {
 
     public List<DisbursementOverWeekPeriod> retrieveDisbursementsOverWeekEndingBefore(final LocalDate date) {
         val lastDayOfWeek = date.minusDays(1);
-        return repository.findByLastDayOfWeekPeriod(lastDayOfWeek);
+
+        List<DisbursementOverWeekPeriod> disbursemenetsForTheWeek = repository.findByLastDayOfWeekPeriod(
+            lastDayOfWeek
+        );
+        if (disbursemenetsForTheWeek.isEmpty()) {
+            throw new NoDisbursementsFound();
+        }
+        return disbursemenetsForTheWeek;
     }
 }
