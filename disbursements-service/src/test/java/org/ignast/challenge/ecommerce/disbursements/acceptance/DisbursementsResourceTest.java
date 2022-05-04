@@ -43,18 +43,30 @@ public class DisbursementsResourceTest extends AcceptanceTestEnvironment {
     }
 
     @Test
-    public void shouldQueryResource() throws JSONException {
+    public void shouldQueryDisbursements() throws JSONException {
         jdbcTemplate.execute(
             """
                     INSERT INTO disbursement_over_week_period (merchant_id, last_day_of_week_period, disbursement_amount) 
                     VALUES ('amazon@amazon.com', '2022-01-07', 5.2785432)"""
         );
 
-        val result = restTemplate.exchange(query("2022-01-08"), HttpMethod.GET, asJson(), String.class);
+        val result = restTemplate.exchange(query("2022-01-08"), HttpMethod.GET, getAsJson(), String.class);
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(result.getHeaders().getContentType()).isEqualTo(APPLICATION_JSON);
         assertEquals(amazon(), result.getBody(), NON_EXTENSIBLE);
+    }
+
+    @Test
+    public void shouldInitiateDisbursementCalculation() throws JSONException {
+        val result = restTemplate.exchange(
+            disbursementsUri(),
+            HttpMethod.POST,
+            forWeekEndingBefore("2022-01-08"),
+            String.class
+        );
+
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
     }
 
     private final String amazon() {
@@ -75,17 +87,27 @@ public class DisbursementsResourceTest extends AcceptanceTestEnvironment {
                 }""";
     }
 
-    private final HttpEntity<String> asJson() {
-        final val headers = new HttpHeaders();
+    private final HttpEntity<String> getAsJson() {
+        val headers = new HttpHeaders();
         headers.add("Accept", APPLICATION_JSON_VALUE);
         return new HttpEntity<>(headers);
     }
 
+    private final HttpEntity<String> forWeekEndingBefore(String date) {
+        val week = String.format("{\"timeFrameEndingBefore\":\"%s\"}", date);
+        val headers = new HttpHeaders();
+        headers.add("Accept", APPLICATION_JSON_VALUE);
+        return new HttpEntity<>(week, headers);
+    }
+
     private final String query(final String dayAfterPeriod) {
         return String.format(
-            "http://localhost:%d/disbursements?timeFrameEndingBefore=%s&timeFrame=1week",
-            port,
+            disbursementsUri() + "?timeFrameEndingBefore=%s&timeFrame=1week",
             dayAfterPeriod
         );
+    }
+
+    private String disbursementsUri() {
+        return String.format("http://localhost:%d/disbursements", port);
     }
 }
