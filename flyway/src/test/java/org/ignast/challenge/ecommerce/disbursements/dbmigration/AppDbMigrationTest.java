@@ -11,7 +11,9 @@ import org.assertj.core.api.Assertions;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.containers.MySQLContainer;
@@ -33,88 +35,159 @@ public class AppDbMigrationTest {
         Flyway.configure().dataSource(getDataSourceTo(APP_DB)).load().migrate();
     }
 
-    @AfterEach
-    public void emptyDisbursements() {
-        db.execute("DELETE FROM disbursement_over_week_period");
-    }
+    @Nested
+    final class DisbursementMigrationTest {
 
-    @Test
-    public void shouldAcceptDisbursement() {
-        val sql =
-            """
-                    INSERT INTO disbursement_over_week_period (merchant_id, last_day_of_week_period, disbursement_amount) 
-                    VALUES ('amazon@amazon.com', '2022-01-01', 58.1234567)""";
-        db.execute(sql);
-    }
+        @AfterEach
+        public void emptyDisbursements() {
+            db.execute("DELETE FROM disbursement_over_week_period");
+        }
 
-    @Test
-    public void disbursementShouldAccommodateLongEnoughMerchantId() {
-        val merchantId = "a".repeat(256);
-        val sql = String.format(
-            """
-                        INSERT INTO disbursement_over_week_period (merchant_id, last_day_of_week_period, disbursement_amount) 
-                        VALUES ('%s', '2022-01-01', 58.1234567)""",
-            merchantId
-        );
-        db.execute(sql);
-    }
+        @Test
+        public void shouldAcceptDisbursement() {
+            val sql =
+                """
+                            INSERT INTO disbursement_over_week_period (merchant_id, last_day_of_week_period, disbursement_amount) 
+                            VALUES ('amazon@amazon.com', '2022-01-01', 58.1234567)""";
+            db.execute(sql);
+        }
 
-    @Test
-    public void disbursementShouldPreserveOriginal6FractionalDigitsPotentiallyRoundingThe7th() {
-        val amount = "8.12345678";
-        val sql = String.format(
-            """
-                        INSERT INTO disbursement_over_week_period (merchant_id, last_day_of_week_period, disbursement_amount) 
-                        VALUES ('amazon@amazon.com', '2022-01-01', %s)""",
-            amount
-        );
-        db.execute(sql);
-        BigDecimal retrievedAmount = db.queryForObject(
-            "SELECT disbursement_amount FROM disbursement_over_week_period",
-            BigDecimal.class
-        );
-        assertThat(retrievedAmount.toPlainString()).isEqualTo("8.1234568");
-    }
-
-    @Test
-    public void disbursementShouldContainSingleAmountPerMerchantPerDate() {
-        String sql =
-            """
-                INSERT INTO disbursement_over_week_period (merchant_id, last_day_of_week_period, disbursement_amount) 
-                VALUES ('amazon@amazon.com', '2022-01-01', 100)""";
-        db.execute(sql);
-        assertThatExceptionOfType(DuplicateKeyException.class)
-            .isThrownBy(() -> db.execute(sql))
-            .withRootCauseInstanceOf(SQLIntegrityConstraintViolationException.class)
-            .havingRootCause()
-            .withMessageContaining(
-                "Duplicate entry 'amazon@amazon.com-2022-01-01' for key 'disbursement_over_week_period.unique_date_merchant'"
+        @Test
+        public void disbursementShouldAccommodateLongEnoughMerchantId() {
+            val merchantId = "a".repeat(256);
+            val sql = String.format(
+                """
+                                INSERT INTO disbursement_over_week_period (merchant_id, last_day_of_week_period, disbursement_amount) 
+                                VALUES ('%s', '2022-01-01', 58.1234567)""",
+                merchantId
             );
+            db.execute(sql);
+        }
+
+        @Test
+        public void disbursementShouldPreserveOriginal6FractionalDigitsPotentiallyRoundingThe7th() {
+            val amount = "8.12345678";
+            val sql = String.format(
+                """
+                                INSERT INTO disbursement_over_week_period (merchant_id, last_day_of_week_period, disbursement_amount) 
+                                VALUES ('amazon@amazon.com', '2022-01-01', %s)""",
+                amount
+            );
+            db.execute(sql);
+            BigDecimal retrievedAmount = db.queryForObject(
+                "SELECT disbursement_amount FROM disbursement_over_week_period",
+                BigDecimal.class
+            );
+            assertThat(retrievedAmount.toPlainString()).isEqualTo("8.1234568");
+        }
+
+        @Test
+        public void disbursementShouldContainSingleAmountPerMerchantPerDate() {
+            String sql =
+                """
+                        INSERT INTO disbursement_over_week_period (merchant_id, last_day_of_week_period, disbursement_amount) 
+                        VALUES ('amazon@amazon.com', '2022-01-01', 100)""";
+            db.execute(sql);
+            assertThatExceptionOfType(DuplicateKeyException.class)
+                .isThrownBy(() -> db.execute(sql))
+                .withRootCauseInstanceOf(SQLIntegrityConstraintViolationException.class)
+                .havingRootCause()
+                .withMessageContaining(
+                    "Duplicate entry 'amazon@amazon.com-2022-01-01' for key 'disbursement_over_week_period.unique_date_merchant'"
+                );
+        }
+
+        @Test
+        public void shouldAutoincrementId() {
+            final val insertDisbursementAmazon =
+                """
+                            INSERT INTO disbursement_over_week_period (merchant_id, last_day_of_week_period, disbursement_amount) 
+                            VALUES ('amazon@amazon.com', '2022-01-01', 58.1234567)""";
+            final val insertDisbursementMicrosoft =
+                """
+                            INSERT INTO disbursement_over_week_period (merchant_id, last_day_of_week_period, disbursement_amount) 
+                            VALUES ('microsoft@microsoft.com', '2022-01-01', 58.1234567)""";
+            db.execute(insertDisbursementAmazon);
+            db.execute(insertDisbursementMicrosoft);
+
+            final val amazonDisbursementId = db.queryForObject(
+                "SELECT id FROM disbursement_over_week_period WHERE merchant_id = 'amazon@amazon.com'",
+                Integer.class
+            );
+            final val microsoftDisbursementId = db.queryForObject(
+                "SELECT id FROM disbursement_over_week_period WHERE merchant_id = 'microsoft@microsoft.com'",
+                Integer.class
+            );
+            Assertions.assertThat(amazonDisbursementId).isGreaterThan(0);
+            Assertions.assertThat(microsoftDisbursementId).isGreaterThan(0);
+            assertThat(amazonDisbursementId + 1).isEqualTo(microsoftDisbursementId);
+        }
     }
 
-    @Test
-    public void shouldAutoincrementId() {
-        final val insertDisbursementAmazon =
-            """
-                    INSERT INTO disbursement_over_week_period (merchant_id, last_day_of_week_period, disbursement_amount) 
-                    VALUES ('amazon@amazon.com', '2022-01-01', 58.1234567)""";
-        final val insertDisbursementMicrosoft =
-            """
-                    INSERT INTO disbursement_over_week_period (merchant_id, last_day_of_week_period, disbursement_amount) 
-                    VALUES ('microsoft@microsoft.com', '2022-01-01', 58.1234567)""";
-        db.execute(insertDisbursementAmazon);
-        db.execute(insertDisbursementMicrosoft);
+    @Nested
+    final class MerchantMigrationTest {
 
-        final val amazonDisbursementId = db.queryForObject(
-            "SELECT id FROM disbursement_over_week_period WHERE merchant_id = 'amazon@amazon.com'",
-            Integer.class
-        );
-        final val microsoftDisbursementId = db.queryForObject(
-            "SELECT id FROM disbursement_over_week_period WHERE merchant_id = 'microsoft@microsoft.com'",
-            Integer.class
-        );
-        Assertions.assertThat(amazonDisbursementId).isGreaterThan(0);
-        Assertions.assertThat(microsoftDisbursementId).isGreaterThan(0);
-        assertThat(amazonDisbursementId + 1).isEqualTo(microsoftDisbursementId);
+        @AfterEach
+        public void emptyTable() {
+            db.execute("DELETE FROM merchant");
+        }
+
+        @Test
+        public void shouldAcceptMerchant() {
+            val sql =
+                """
+                            INSERT INTO merchant (id, external_merchant_id) 
+                            VALUES (1, 'amazon@amazon.com')""";
+            db.execute(sql);
+        }
+
+        @Test
+        public void shouldAccommodateLongEnoughMerchantId() {
+            val externalMerchantId = "a".repeat(256);
+            val sql = String.format(
+                """
+                                INSERT INTO merchant (id, external_merchant_id) 
+                                VALUES (1, '%s')""",
+                externalMerchantId
+            );
+            db.execute(sql);
+        }
+    }
+
+    @Nested
+    final class OderMigrationTest {
+
+        @AfterEach
+        public void emptyTables() {
+            db.execute("DELETE FROM completed_order");
+            db.execute("DELETE FROM merchant");
+        }
+
+        @Test
+        public void shouldAcceptOrder() {
+            db.execute(
+                """
+                            INSERT INTO merchant (id, external_merchant_id) 
+                            VALUES (1, 'amazon@amazon.com')"""
+            );
+            val sql =
+                """
+                            INSERT INTO completed_order (id, merchant_id, amount, completion_date) 
+                            VALUES (1, 1, 58.12, '2022-01-01')""";
+            db.execute(sql);
+        }
+
+        @Test
+        public void shouldNotAcceptOrderForNonexistentMerchant() {
+            val sql =
+                """
+                                INSERT INTO completed_order (id, merchant_id, amount, completion_date) 
+                                VALUES (1, 1, 58.12, '2022-01-01')""";
+            assertThatExceptionOfType(DataIntegrityViolationException.class)
+                .isThrownBy(() -> db.execute(sql))
+                .withRootCauseInstanceOf(SQLIntegrityConstraintViolationException.class)
+                .havingRootCause()
+                .withMessageContaining("FOREIGN KEY (`merchant_id`) REFERENCES `merchant` (`id`)");
+        }
     }
 }
