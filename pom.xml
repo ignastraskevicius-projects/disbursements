@@ -36,10 +36,9 @@
         <testcontainers.version>1.16.3</testcontainers.version>
         <flyway.version>8.5.2</flyway.version>
         <h2.version>2.1.210</h2.version>
+        <jakarta.xml.bind.version>2.3.3</jakarta.xml.bind.version>
     </properties>
-
-
-
+    
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -186,6 +185,11 @@
                 <artifactId>h2</artifactId>
                 <scope>test</scope>
                 <version>${h2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.xml.bind</groupId>
+                <artifactId>jakarta.xml.bind-api</artifactId>
+                <version>${jakarta.xml.bind.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

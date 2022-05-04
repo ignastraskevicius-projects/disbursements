@@ -8,6 +8,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import lombok.val;
 import org.json.JSONException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class DisbursementsResourceTest {
+public class DisbursementsResourceTest extends AcceptanceTestEnvironment {
 
     @LocalServerPort
     private int port;
@@ -36,9 +37,20 @@ public class DisbursementsResourceTest {
         restTemplate = restTemplateBuilder.build();
     }
 
+    @AfterEach
+    public void cleanupDatabase() {
+        jdbcTemplate.execute("DELETE FROM disbursement_over_week_period;");
+    }
+
     @Test
     public void shouldQueryResource() throws JSONException {
-        val result = restTemplate.exchange(uri(), HttpMethod.GET, asJson(), String.class);
+        jdbcTemplate.execute(
+            """
+                    INSERT INTO disbursement_over_week_period (merchant_id, last_day_of_week_period, disbursement_amount) 
+                    VALUES ('amazon@amazon.com', '2022-01-07', 5.2785432)"""
+        );
+
+        val result = restTemplate.exchange(query("2022-01-08"), HttpMethod.GET, asJson(), String.class);
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(result.getHeaders().getContentType()).isEqualTo(APPLICATION_JSON);
@@ -49,13 +61,13 @@ public class DisbursementsResourceTest {
         return """
                 {
                     "timeFrame":{
-                        "start":"2021-12-27T00:00:00+01:00",
-                        "end":"2022-01-03T00:00:00+01:00"
+                        "start":"2022-01-01T00:00:00+01:00",
+                        "end":"2022-01-08T00:00:00+01:00"
                     },
                     "merchants":[{
                         "merchantId":"amazon@amazon.com",
                         "monetaryValue":{
-                            "amount":5.27854324,
+                            "amount":5.2785432,
                             "currency":"EUR"
                         }
                     }]
@@ -69,10 +81,11 @@ public class DisbursementsResourceTest {
         return new HttpEntity<>(headers);
     }
 
-    private final String uri() {
+    private final String query(final String dayAfterPeriod) {
         return String.format(
-            "http://localhost:%d/disbursements?timeFrameEndingBefore=2022-01-03&timeFrame=1week",
-            port
+            "http://localhost:%d/disbursements?timeFrameEndingBefore=%s&timeFrame=1week",
+            port,
+            dayAfterPeriod
         );
     }
 }
