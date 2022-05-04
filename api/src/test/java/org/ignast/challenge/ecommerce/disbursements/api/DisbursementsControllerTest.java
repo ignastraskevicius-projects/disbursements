@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.util.List;
 import org.ignast.challenge.ecommerce.disbursements.domain.DisbursementOverWeekPeriod;
 import org.ignast.challenge.ecommerce.disbursements.domain.Disbursements;
+import org.ignast.challenge.ecommerce.disbursements.domain.NoDisbursementsFound;
 import org.javamoney.moneta.Money;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +58,19 @@ class DisbursementsControllerTest {
 
     private LocalDate anyDate() {
         return LocalDate.of(2022, 1, 1);
+    }
+
+    @Test
+    public void noDisbursementsFoundShouldMeanThatHeyAreNotCalculatedYet() throws Exception {
+        when(disbursements.retrieveDisbursementsOverWeekEndingBefore(FIRST_MONDAY_OF_2022))
+            .thenThrow(NoDisbursementsFound.class);
+
+        mockMvc
+            .perform(
+                get("/disbursements?timeFrameEndingBefore=" + FIRST_MONDAY_OF_2022_TEXT + "&timeFrame=1week")
+                    .accept(APPLICATION_JSON)
+            )
+            .andExpect(status().isBadRequest());
     }
 
     @Test
