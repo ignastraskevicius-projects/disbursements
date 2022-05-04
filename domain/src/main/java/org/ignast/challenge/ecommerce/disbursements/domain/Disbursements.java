@@ -26,5 +26,8 @@ public class Disbursements {
         return disbursemenetsForTheWeek;
     }
 
-    public void calculateDisbursementsForWeekEndingBefore(final LocalDate date) {}
+    public void calculateDisbursementsForWeekEndingBefore(final LocalDate date) {
+        val lastDayOfWeek = date.minusDays(1);
+        repository.saveAll(repository.calculateDisbursementsForWeekEndingWith(lastDayOfWeek));
+    }
 }
