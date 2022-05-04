@@ -25,4 +25,6 @@ public class Disbursements {
         }
         return disbursemenetsForTheWeek;
     }
+
+    public void calculateDisbursementsForWeekEndingBefore(final LocalDate date) {}
 }

@@ -1,6 +1,8 @@
 package org.ignast.challenge.ecommerce.disbursements.api;
 
+import static java.lang.String.format;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -13,6 +15,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import lombok.val;
 import org.ignast.challenge.ecommerce.disbursements.domain.DisbursementOverWeekPeriod;
@@ -103,7 +107,132 @@ class DisbursementsControllerTest {
             .perform(
                 post("/disbursements")
                     .contentType(APPLICATION_JSON)
-                    .content("{\"timeFrameEndingBefore\":\"2022-01-08\"}")
+                    .content(
+                        format(
+                            """
+                            {"timeFrame":{
+                                "length":"1week",
+                                "endingBefore":"%s"
+                            }}""",
+                            FIRST_MONDAY_OF_2022_TEXT
+                        )
+                    )
+            )
+            .andReturn();
+
+        mockMvc.perform(asyncDispatch(result)).andExpect(status().isAccepted());
+
+        verify(disbursements).calculateDisbursementsForWeekEndingBefore(FIRST_MONDAY_OF_2022);
+    }
+
+    @Test
+    public void shouldNotAcceptDisbursementCreationWithoutTimeFrame() throws Exception {
+        mockMvc
+            .perform(
+                post("/disbursements")
+                    .contentType(APPLICATION_JSON)
+                    .content(format("""
+                            {}""", FIRST_MONDAY_OF_2022_TEXT))
+            )
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldNotAcceptDisbursementCreationWithNon1WeekTimeFrames() throws Exception {
+        mockMvc
+            .perform(
+                post("/disbursements")
+                    .contentType(APPLICATION_JSON)
+                    .content(
+                        format(
+                            """
+                            {"timeFrame":{
+                                "length":"2week",
+                                "endingBefore":"%s"
+                            }}""",
+                            FIRST_MONDAY_OF_2022_TEXT
+                        )
+                    )
+            )
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldNotAcceptDisbursementCreationWithoutTimeFrameLength() throws Exception {
+        mockMvc
+            .perform(
+                post("/disbursements")
+                    .contentType(APPLICATION_JSON)
+                    .content(
+                        format(
+                            """
+                            {"timeFrame":{
+                                "endingBefore":"%s"
+                            }}""",
+                            FIRST_MONDAY_OF_2022_TEXT
+                        )
+                    )
+            )
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldNotAcceptDisbursementCreationWithoutTimeFrameDate() throws Exception {
+        mockMvc
+            .perform(
+                post("/disbursements")
+                    .contentType(APPLICATION_JSON)
+                    .content(
+                        """
+                            {"timeFrame":{
+                                "length":"1week"
+                            }}"""
+                    )
+            )
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldNotAcceptDisbursementCreationWithFutureDate() throws Exception {
+        val tomorrow = ZonedDateTime.now(ZoneId.of("GMT+1")).plusDays(1).toLocalDate().toString();
+        val result = mockMvc
+            .perform(
+                post("/disbursements")
+                    .contentType(APPLICATION_JSON)
+                    .content(
+                        format(
+                            """
+                            {"timeFrame":{
+                                "length":"1week",
+                                "endingBefore":"%s"
+                            }}""",
+                            tomorrow
+                        )
+                    )
+            )
+            .andReturn();
+
+        mockMvc.perform(asyncDispatch(result)).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldAcceptDisbursementCreationForToday() throws Exception {
+        val today = ZonedDateTime.now(ZoneId.of("GMT+1")).toLocalDate().toString();
+
+        val result = mockMvc
+            .perform(
+                post("/disbursements")
+                    .contentType(APPLICATION_JSON)
+                    .content(
+                        format(
+                            """
+                            {"timeFrame":{
+                                "length":"1week",
+                                "endingBefore":"%s"
+                            }}""",
+                            today
+                        )
+                    )
             )
             .andReturn();
 
