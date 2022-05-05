@@ -109,7 +109,7 @@ public class DisbursementsResourceTest extends AcceptanceTestEnvironment {
 
     private final String query(final String dayAfterPeriod) {
         return String.format(
-            disbursementsUri() + "?timeFrameEndingBefore=%s&timeFrame=1week",
+            disbursementsUri() + "?timeFrameEndingBefore=%s&timeFrameLength=1week",
             dayAfterPeriod
         );
     }
