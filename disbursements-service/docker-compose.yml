@@ -1,0 +1,12 @@
+version: '3.7'
+services:
+  mysql-dev:
+    ports:
+      - "3306:3306"
+    image: "org.ignast.challenge.ecommerce.disbursements/mysql-dev:1.0-SNAPSHOT"
+    environment:
+      - "MYSQL_ROOT_PASSWORD=test"
+  quotes-app:
+    ports:
+      - "8080:8080"
+    image: "org.ignast.challenge.ecommerce.disbursements/disbursements-service:1.0-SNAPSHOT"

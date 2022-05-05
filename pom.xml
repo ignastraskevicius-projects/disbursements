@@ -22,6 +22,8 @@
         <maven.compiler.target>17</maven.compiler.target>
 
         <mysql.dev.dockerimage>${project.groupId}/mysql-dev:${project.version}</mysql.dev.dockerimage>
+        <app.dockerimage>${project.groupId}/disbursements-service:${project.version}</app.dockerimage>
+
 
         <springboot.version>2.6.4</springboot.version>
         <springframework.version>5.3.16</springframework.version>
