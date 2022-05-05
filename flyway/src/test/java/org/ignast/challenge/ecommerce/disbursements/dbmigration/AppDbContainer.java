@@ -1,4 +1,4 @@
-package org.ignast.challenge.ecommerce.disbursements.persistence.dbmigration;
+package org.ignast.challenge.ecommerce.disbursements.dbmigration;
 
 import javax.sql.DataSource;
 import lombok.val;

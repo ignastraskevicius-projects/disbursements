@@ -9,6 +9,7 @@
         <module>api</module>
 	<module>domain</module>
 	<module>persistence</module>
+	<module>flyway</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -59,6 +60,11 @@
             <dependency>
                 <groupId>org.ignast.challenge.ecommerce.disbursements</groupId>
                 <artifactId>persistence</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ignast.challenge.ecommerce.disbursements</groupId>
+                <artifactId>flyway</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
