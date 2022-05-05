@@ -19,7 +19,8 @@ REST API for disbursements service in a e-commerce context
 #### Usage
 
 * root resource will be available at http://localhost:8080
-* Disbursement resource:
+* Disbursements resource:
+
 POST /disbursements (async)
 ```
 {
@@ -30,3 +31,12 @@ POST /disbursements (async)
 }
 ```
 GET /disbursements?timeFrameEndingBefore=2022-01-01&timeFrameLength=1week
+
+#### Deploy (dev-env)
+
+docker-compose -f disbursements-service/docker-compose.yml up
+
+#### Destroy (dev-env)
+
+docker-compose -f disbursements-service/docker-compose.yml down
+
