@@ -47,21 +47,21 @@ docker-compose -f disbursements-service/docker-compose.yml up
 
 docker-compose -f disbursements-service/docker-compose.yml down
 
-### Disbursements query optimization 
+## Disbursements query optimization 
 
 #### Problem statement
-Aggregating huge amount of payments for disbursement amounts is costly:
-* The disbursement query caller (a payment system making actual pay-outs to merchants) might be held for excessive periods of time exposing the call to unnecessary risks of call failures.
+Aggregating huge amount of payments to calculate disbursement amounts is costly:
+* The disbursement query caller (a payment system making actual pay-outs to merchants) might be held for excessive periods of time exposing a call to unnecessary risks of call failures.
 * Repeating same operation multiple times puts unnecessary pressure on the production database processing live data.
 
 #### Technical implementation
 
-All heavy-lifting of calculating these disbursements for merchants is memoized via asynchronous process initiated via upfront API call for disbursements creation. This process is backed by a stored procedure in the database which aggregates currently completed orders to a requested weekly disbursements for merchants.
+All heavy-lifting of calculating these disbursements for merchants is memoized via asynchronous disbursements' creation process initiated via upfront API call. This process is backed by a stored procedure in the database which aggregates currently completed orders to a requested weekly disbursements for merchants.
 
 Only after this asynchronous process completes, API provides a way to query weekly disbursements for that particular week. Otherwise, the query request is rejected.
 
-### TODO
+### To Do
 
-* Old Data migration is not done.
-* API to capture live completed-order flow is not done
-* Merchant onboarding API for onboarded merchants after initial migration is not done.
+* Old Orders & Merchants data migration is not done.
+* API to capture live completed-orders flow is not done 
+* Onboarding API for merchants created in SeQura after initial data migration - is not done.
