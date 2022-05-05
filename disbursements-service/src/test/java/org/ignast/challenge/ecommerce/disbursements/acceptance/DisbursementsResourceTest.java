@@ -46,7 +46,7 @@ public class DisbursementsResourceTest extends AcceptanceTestEnvironment {
     public void shouldQueryDisbursements() throws JSONException {
         jdbcTemplate.execute(
             """
-                    INSERT INTO disbursement_over_week_period (merchant_id, last_day_of_week_period, disbursement_amount) 
+                    INSERT INTO disbursement_over_week_period (external_merchant_id, last_day_of_week_period, disbursable_amount) 
                     VALUES ('amazon@amazon.com', '2022-01-07', 5.2785432)"""
         );
 

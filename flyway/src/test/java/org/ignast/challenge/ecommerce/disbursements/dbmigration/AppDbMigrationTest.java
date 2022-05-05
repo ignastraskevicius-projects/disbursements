@@ -53,19 +53,19 @@ public class AppDbMigrationTest {
         public void shouldAcceptDisbursement() {
             val sql =
                 """
-                            INSERT INTO disbursement_over_week_period (merchant_id, last_day_of_week_period, disbursement_amount) 
+                            INSERT INTO disbursement_over_week_period (external_merchant_id, last_day_of_week_period, disbursable_amount) 
                             VALUES ('amazon@amazon.com', '2022-01-01', 58.1234567)""";
             db.execute(sql);
         }
 
         @Test
         public void disbursementShouldAccommodateLongEnoughMerchantId() {
-            val merchantId = "a".repeat(256);
+            val externalMerchantId = "a".repeat(256);
             val sql = String.format(
                 """
-                                INSERT INTO disbursement_over_week_period (merchant_id, last_day_of_week_period, disbursement_amount) 
+                                INSERT INTO disbursement_over_week_period (external_merchant_id, last_day_of_week_period, disbursable_amount) 
                                 VALUES ('%s', '2022-01-01', 58.1234567)""",
-                merchantId
+                externalMerchantId
             );
             db.execute(sql);
         }
@@ -75,13 +75,13 @@ public class AppDbMigrationTest {
             val amount = "8.12345678";
             val sql = String.format(
                 """
-                                INSERT INTO disbursement_over_week_period (merchant_id, last_day_of_week_period, disbursement_amount) 
+                                INSERT INTO disbursement_over_week_period (external_merchant_id, last_day_of_week_period, disbursable_amount) 
                                 VALUES ('amazon@amazon.com', '2022-01-01', %s)""",
                 amount
             );
             db.execute(sql);
             BigDecimal retrievedAmount = db.queryForObject(
-                "SELECT disbursement_amount FROM disbursement_over_week_period",
+                "SELECT disbursable_amount FROM disbursement_over_week_period",
                 BigDecimal.class
             );
             assertThat(retrievedAmount.toPlainString()).isEqualTo("8.1234568");
@@ -91,7 +91,7 @@ public class AppDbMigrationTest {
         public void disbursementShouldContainSingleAmountPerMerchantPerDate() {
             String sql =
                 """
-                        INSERT INTO disbursement_over_week_period (merchant_id, last_day_of_week_period, disbursement_amount) 
+                        INSERT INTO disbursement_over_week_period (external_merchant_id, last_day_of_week_period, disbursable_amount) 
                         VALUES ('amazon@amazon.com', '2022-01-01', 100)""";
             db.execute(sql);
             assertThatExceptionOfType(DuplicateKeyException.class)
@@ -107,21 +107,21 @@ public class AppDbMigrationTest {
         public void shouldAutoincrementId() {
             final val insertDisbursementAmazon =
                 """
-                            INSERT INTO disbursement_over_week_period (merchant_id, last_day_of_week_period, disbursement_amount) 
+                            INSERT INTO disbursement_over_week_period (external_merchant_id, last_day_of_week_period, disbursable_amount) 
                             VALUES ('amazon@amazon.com', '2022-01-01', 58.1234567)""";
             final val insertDisbursementMicrosoft =
                 """
-                            INSERT INTO disbursement_over_week_period (merchant_id, last_day_of_week_period, disbursement_amount) 
+                            INSERT INTO disbursement_over_week_period (external_merchant_id, last_day_of_week_period, disbursable_amount) 
                             VALUES ('microsoft@microsoft.com', '2022-01-01', 58.1234567)""";
             db.execute(insertDisbursementAmazon);
             db.execute(insertDisbursementMicrosoft);
 
             final val amazonDisbursementId = db.queryForObject(
-                "SELECT id FROM disbursement_over_week_period WHERE merchant_id = 'amazon@amazon.com'",
+                "SELECT id FROM disbursement_over_week_period WHERE external_merchant_id = 'amazon@amazon.com'",
                 Integer.class
             );
             final val microsoftDisbursementId = db.queryForObject(
-                "SELECT id FROM disbursement_over_week_period WHERE merchant_id = 'microsoft@microsoft.com'",
+                "SELECT id FROM disbursement_over_week_period WHERE external_merchant_id = 'microsoft@microsoft.com'",
                 Integer.class
             );
             Assertions.assertThat(amazonDisbursementId).isGreaterThan(0);
@@ -222,7 +222,10 @@ public class AppDbMigrationTest {
                 .execute(Map.of("last_day", LocalDate.of(2022, 1, 1)));
 
             assertThat(
-                db.queryForObject("SELECT merchant_id FROM disbursement_over_week_period", String.class)
+                db.queryForObject(
+                    "SELECT external_merchant_id FROM disbursement_over_week_period",
+                    String.class
+                )
             )
                 .isEqualTo("amazon@amazon.com");
         }
@@ -240,7 +243,10 @@ public class AppDbMigrationTest {
                 .execute(Map.of("last_day", LocalDate.of(2022, 1, 8)));
 
             assertThat(
-                db.queryForObject("SELECT merchant_id FROM disbursement_over_week_period", String.class)
+                db.queryForObject(
+                    "SELECT external_merchant_id FROM disbursement_over_week_period",
+                    String.class
+                )
             )
                 .isEqualTo("microsoft@microsoft.com");
         }
@@ -256,7 +262,7 @@ public class AppDbMigrationTest {
             assertThat(
                 new BigDecimal(
                     db.queryForObject(
-                        "SELECT disbursement_amount FROM disbursement_over_week_period",
+                        "SELECT disbursable_amount FROM disbursement_over_week_period",
                         String.class
                     )
                 )
@@ -276,7 +282,7 @@ public class AppDbMigrationTest {
             assertThat(
                 new BigDecimal(
                     db.queryForObject(
-                        "SELECT disbursement_amount FROM disbursement_over_week_period",
+                        "SELECT disbursable_amount FROM disbursement_over_week_period",
                         String.class
                     )
                 )
@@ -296,7 +302,7 @@ public class AppDbMigrationTest {
             assertThat(
                 new BigDecimal(
                     db.queryForObject(
-                        "SELECT disbursement_amount FROM disbursement_over_week_period",
+                        "SELECT disbursable_amount FROM disbursement_over_week_period",
                         String.class
                     )
                 )
