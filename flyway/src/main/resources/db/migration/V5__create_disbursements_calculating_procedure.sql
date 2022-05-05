@@ -2,6 +2,13 @@ DELIMITER //
 CREATE PROCEDURE calculate_disbursements_over_week_period_ending_on(
     IN last_day DATE
 ) BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION BEGIN
+        ROLLBACK;
+        SELECT 'An error has occurred, operation rolled back and the stored procedure was terminated';
+    END;
+
+    START TRANSACTION;
+
     INSERT INTO disbursement_over_week_period (
         disbursement_amount,
         last_day_of_week_period,
@@ -38,5 +45,6 @@ CREATE PROCEDURE calculate_disbursements_over_week_period_ending_on(
             INNER JOIN
             merchant
             ON merchant.id = amount_per_merchant.merchant_id;
+    COMMIT;
 END //
 DELIMITER ;

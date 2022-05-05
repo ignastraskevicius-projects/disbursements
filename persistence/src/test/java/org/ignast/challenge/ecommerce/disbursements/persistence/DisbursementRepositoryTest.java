@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import lombok.val;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -25,7 +26,7 @@ import org.testcontainers.utility.DockerImageName;
 @DataJpaTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class DisbursementRetrievalTest {
+public class DisbursementRepositoryTest {
 
     @Container
     private static final MySQLContainer MYSQL = new MySQLContainer(
@@ -40,7 +41,7 @@ public class DisbursementRetrievalTest {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public DisbursementRetrievalTest() throws SQLException {
+    public DisbursementRepositoryTest() throws SQLException {
         final val testDataSource = new SingleConnectionDataSource();
         testDataSource.setUrl(MYSQL.getJdbcUrl());
         testDataSource.setUsername(MYSQL.getUsername());
@@ -55,20 +56,34 @@ public class DisbursementRetrievalTest {
         registry.add("spring.datasource.password", () -> "test");
     }
 
+    @AfterEach
+    public void emptyTables() {
+        jdbcTemplate.execute("DELETE FROM completed_order");
+        jdbcTemplate.execute("DELETE FROM merchant");
+        jdbcTemplate.execute("DELETE FROM disbursement_over_week_period");
+    }
+
     @Test
-    public void shouldFindDisbursementsByDate() {
+    public void shouldCalculateDisbursements() {
         jdbcTemplate.execute(
             """
-                    INSERT INTO disbursement_over_week_period (merchant_id, last_day_of_week_period, disbursement_amount)
-                    VALUES ('amazon@amazon.com', '2022-01-01', 58.1234561)"""
+                    INSERT INTO merchant (id, external_merchant_id) 
+                    VALUES (1, 'amazon@amazon.com')"""
         );
+        jdbcTemplate.execute(
+            """
+                            INSERT INTO completed_order (id, merchant_id, amount, completion_date) 
+                            VALUES (1, 1, 100.01, '2022-01-01')"""
+        );
+
+        repository.calculateDisbursementsForWeekEndingWith(LocalDate.of(2022, 1, 1));
 
         final val disbursements = repository.findByLastDayOfWeekPeriod(LocalDate.of(2022, 1, 1));
         assertThat(disbursements).hasSize(1);
         disbursements
             .stream()
             .forEach(d -> {
-                assertThat(d.getAmount().getNumberStripped()).isEqualTo(new BigDecimal("58.1234561"));
+                assertThat(d.getAmount().getNumberStripped()).isEqualTo(new BigDecimal("99.059905"));
                 assertThat(d.getAmount().getCurrency().getCurrencyCode()).isEqualTo("EUR");
                 assertThat(d.getMerchantId()).isEqualTo("amazon@amazon.com");
             });
