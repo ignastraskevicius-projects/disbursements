@@ -65,7 +65,7 @@ public class DisbursementsController {
         @RequestParam(name = "timeFrameEndingBefore") @DateTimeFormat(
             iso = DATE
         ) final LocalDate timeFrameEndingBefore,
-        @RequestParam(name = "timeFrame") @Pattern(regexp = "1week") final String timeFrame
+        @RequestParam(name = "timeFrameLength") @Pattern(regexp = "1week") final String timeFrameLength
     ) {
         List<DisbursementOverWeekPeriod> disbursementsOverTheWeek = disbursements.retrieveDisbursementsOverWeekEndingBefore(
             timeFrameEndingBefore

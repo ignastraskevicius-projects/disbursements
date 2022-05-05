@@ -56,7 +56,11 @@ class DisbursementsControllerTest {
             );
         mockMvc
             .perform(
-                get("/disbursements?timeFrameEndingBefore=" + FIRST_MONDAY_OF_2022_TEXT + "&timeFrame=1week")
+                get(
+                    "/disbursements?timeFrameEndingBefore=" +
+                    FIRST_MONDAY_OF_2022_TEXT +
+                    "&timeFrameLength=1week"
+                )
                     .accept(APPLICATION_JSON)
             )
             .andExpect(status().isOk())
@@ -75,7 +79,11 @@ class DisbursementsControllerTest {
 
         mockMvc
             .perform(
-                get("/disbursements?timeFrameEndingBefore=" + FIRST_MONDAY_OF_2022_TEXT + "&timeFrame=1week")
+                get(
+                    "/disbursements?timeFrameEndingBefore=" +
+                    FIRST_MONDAY_OF_2022_TEXT +
+                    "&timeFrameLength=1week"
+                )
                     .accept(APPLICATION_JSON)
             )
             .andExpect(status().isBadRequest());
@@ -85,7 +93,11 @@ class DisbursementsControllerTest {
     public void shouldNotAcceptNonWeekTimeframes() throws Exception {
         mockMvc
             .perform(
-                get("/disbursements?timeFrameEndingBefore=" + FIRST_MONDAY_OF_2022_TEXT + "&timeFrame=1month")
+                get(
+                    "/disbursements?timeFrameEndingBefore=" +
+                    FIRST_MONDAY_OF_2022_TEXT +
+                    "&timeFrameLength=1month"
+                )
                     .accept(APPLICATION_JSON)
             )
             .andExpect(status().isBadRequest());
@@ -95,7 +107,11 @@ class DisbursementsControllerTest {
     public void shouldAcceptOnly1WeekTimeframes() throws Exception {
         mockMvc
             .perform(
-                get("/disbursements?timeFrameEndingBefore=" + FIRST_MONDAY_OF_2022_TEXT + "&timeFrame=2week")
+                get(
+                    "/disbursements?timeFrameEndingBefore=" +
+                    FIRST_MONDAY_OF_2022_TEXT +
+                    "&timeFrameLength=2week"
+                )
                     .accept(APPLICATION_JSON)
             )
             .andExpect(status().isBadRequest());
