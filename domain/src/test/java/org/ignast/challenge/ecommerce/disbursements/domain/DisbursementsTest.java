@@ -43,13 +43,10 @@ class DisbursementsTest {
     public void shouldCalculateDisbursementsForWeekBeforeGivenDate() {
         val dateAfterLastDay = LocalDate.of(2022, 1, 8);
         val dateLastOfWeek = LocalDate.of(2022, 1, 7);
-        val expectedDisbursements = List.of(mock(DisbursementOverWeekPeriod.class));
-        when(repository.calculateDisbursementsForWeekEndingWith(dateLastOfWeek))
-            .thenReturn(expectedDisbursements);
 
         disbursements.calculateDisbursementsForWeekEndingBefore(dateAfterLastDay);
 
-        verify(repository).saveAll(expectedDisbursements);
+        verify(repository).calculateDisbursementsForWeekEndingWith(dateLastOfWeek);
     }
 
     private LocalDate anyDate() {

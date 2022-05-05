@@ -6,11 +6,5 @@ import java.util.List;
 public interface DisbursementsRepository {
     public List<DisbursementOverWeekPeriod> findByLastDayOfWeekPeriod(final LocalDate date);
 
-    public List<DisbursementOverWeekPeriod> calculateDisbursementsForWeekEndingWith(
-        final LocalDate dateLastOfWeek
-    );
-
-    public Iterable<DisbursementOverWeekPeriod> saveAll(
-        final Iterable<DisbursementOverWeekPeriod> disbursements
-    );
+    public void calculateDisbursementsForWeekEndingWith(final LocalDate dateLastOfWeek);
 }
