@@ -63,5 +63,8 @@ Only after this asynchronous process completes, API provides a way to query week
 ### To Do
 
 * Old Orders & Merchants data migration is not done.
+* Disbursements query for a specific merchant is not done. 
 * API to capture live completed-orders flow is not done 
 * Onboarding API for merchants created in SeQura after initial data migration - is not done.
+* Errors are expressed only as http error codes
+* Logging, Security, Other important non-functional requirements for services going live - not done.
