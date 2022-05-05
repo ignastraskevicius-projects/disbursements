@@ -10,9 +10,9 @@ CREATE PROCEDURE calculate_disbursements_over_week_period_ending_on(
     START TRANSACTION;
 
     INSERT INTO disbursement_over_week_period (
-        disbursement_amount,
+        disbursable_amount,
         last_day_of_week_period,
-        merchant_id
+        external_merchant_id
     ) SELECT
             amount_per_merchant.amounts_summed,
             last_day,

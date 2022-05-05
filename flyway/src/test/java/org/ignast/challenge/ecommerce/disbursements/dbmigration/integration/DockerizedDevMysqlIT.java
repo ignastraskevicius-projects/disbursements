@@ -30,12 +30,12 @@ public final class DockerizedDevMysqlIT {
     public void shouldCreateCompany() {
         jdbcTemplate.execute(
             """
-                        INSERT INTO disbursement_over_week_period (id, merchant_id, last_day_of_week_period, disbursement_amount) 
+                        INSERT INTO disbursement_over_week_period (id, external_merchant_id, last_day_of_week_period, disbursable_amount) 
                         VALUES (1, 'amazon@amazon.com', '2022-01-01', 58.1234567)"""
         );
 
         final val name = jdbcTemplate.queryForObject(
-            "SELECT merchant_id FROM disbursement_over_week_period WHERE id = 1",
+            "SELECT external_merchant_id FROM disbursement_over_week_period WHERE id = 1",
             String.class
         );
 

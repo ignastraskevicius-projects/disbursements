@@ -1,7 +1,6 @@
 package org.ignast.challenge.ecommerce.disbursements.domain;
 
 import java.time.LocalDate;
-import javax.persistence.AttributeOverride;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -28,7 +27,7 @@ public class DisbursementOverWeekPeriod {
 
     @NonNull
     @Getter
-    private String merchantId;
+    private String externalMerchantId;
 
     @NonNull
     @Getter
@@ -36,6 +35,6 @@ public class DisbursementOverWeekPeriod {
 
     @NonNull
     @Getter
-    @Column(name = "disbursement_amount", precision = 20, scale = 7)
+    @Column(name = "disbursable_amount", precision = 20, scale = 7)
     private Money amount;
 }

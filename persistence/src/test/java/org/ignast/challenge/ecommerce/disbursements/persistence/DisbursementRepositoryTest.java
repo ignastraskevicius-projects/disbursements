@@ -85,7 +85,7 @@ public class DisbursementRepositoryTest {
             .forEach(d -> {
                 assertThat(d.getAmount().getNumberStripped()).isEqualTo(new BigDecimal("99.059905"));
                 assertThat(d.getAmount().getCurrency().getCurrencyCode()).isEqualTo("EUR");
-                assertThat(d.getMerchantId()).isEqualTo("amazon@amazon.com");
+                assertThat(d.getExternalMerchantId()).isEqualTo("amazon@amazon.com");
             });
     }
 }

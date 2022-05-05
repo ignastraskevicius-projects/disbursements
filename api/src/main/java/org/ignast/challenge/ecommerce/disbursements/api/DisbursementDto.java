@@ -5,7 +5,7 @@ import org.ignast.challenge.ecommerce.disbursements.domain.DisbursementOverWeekP
 public record DisbursementDto(String merchantId, MonetaryValueDto monetaryValue) {
     public static DisbursementDto fromDisbursement(DisbursementOverWeekPeriod disbursement) {
         return new DisbursementDto(
-            disbursement.getMerchantId(),
+            disbursement.getExternalMerchantId(),
             new MonetaryValueDto(
                 disbursement.getAmount().getNumberStripped(),
                 disbursement.getAmount().getCurrency().getCurrencyCode()

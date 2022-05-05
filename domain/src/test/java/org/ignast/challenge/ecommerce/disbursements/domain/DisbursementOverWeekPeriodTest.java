@@ -27,7 +27,7 @@ class DisbursementOverWeekPeriodTest {
     public void shouldContainFields() {
         val disbursement = new DisbursementOverWeekPeriod(MERCHANT, DATE, MONEY);
 
-        assertThat(disbursement.getMerchantId()).isEqualTo(MERCHANT);
+        assertThat(disbursement.getExternalMerchantId()).isEqualTo(MERCHANT);
         assertThat(disbursement.getLastDayOfWeekPeriod()).isEqualTo(DATE);
         assertThat(disbursement.getAmount()).isEqualTo(MONEY);
     }
